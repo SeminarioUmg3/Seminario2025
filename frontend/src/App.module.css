@@ -1,0 +1,57 @@
+.app-title {
+  font-family: var(--font-family-title);
+  color: var(--color-link);
+  text-align: center;
+}
+
+.app-btn {
+  border-radius: var(--border-radius);
+  background-color: var(--color-btn-bg);
+  color: var(--color-text-white);
+  border: none;
+  box-shadow: var(--box-shadow-card);
+  transition: background-color var(--transition-fast);
+}
+.app-btn:hover {
+  background-color: var(--color-btn-hover);
+}
+
+.app-description {
+  color: var(--color-text-gray);
+}
+
+/* Estilos personalizados para react-calendar */
+.react-calendar {
+  background: var(--color-bg-light, #fff);
+  border-radius: 16px;
+  box-shadow: 0 2px 8px var(--box-shadow-card, #0001);
+  border: none;
+  font-family: inherit;
+  padding: 12px;
+}
+.react-calendar__tile {
+  border-radius: 8px;
+  color: var(--color-text-dark, #213547);
+  font-size: 1rem;
+}
+.react-calendar__tile--active {
+  background: var(--color-bin-blue, #1464ff);
+  color: #fff;
+}
+.react-calendar__tile--now {
+  background: var(--color-bin-green, #1bb934);
+  color: #fff;
+}
+.react-calendar__tile--range {
+  background: var(--color-support-gray, #e6f4ea);
+}
+.react-calendar__navigation button {
+  background: var(--color-support-gray, #e6f4ea);
+  border-radius: 6px;
+  color: var(--color-text-dark, #213547);
+}
+
+/* Ajuste para la página de calendario: menos padding */
+.main-content-responsive.calendar-page {
+  padding: 24px 0 0 180px;
+}

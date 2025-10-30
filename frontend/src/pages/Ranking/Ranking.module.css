@@ -1,0 +1,133 @@
+.card {
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px #0001;
+  padding: 16px;
+}
+
+.tableHeader {
+  background: #3e8e41;
+  color: white;
+  font-weight: bold;
+  padding: 10px;
+  text-align: center;
+  border-radius: 8px 8px 0 0;
+}
+
+.tableContainer {
+  background: #e6f4ea;
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.tableRow {
+  background: #ffffff;
+  border-radius: 8px;
+  padding: 10px;
+  display: flex;
+  align-items: center;
+  margin-top: 8px;
+}
+
+.cell {
+  flex: 1;
+  text-align: left;
+  font-size: 14px; /* Ajustar el tamaño de fuente a 14px */
+}
+
+.icon {
+  font-size: 1.2rem;
+  margin-right: 8px;
+}
+
+/* Gradiente azul para fondo y tabla igual que usuarios/mapleaflet */
+.pageBg {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #e0e7ff 0%, #f3f4f6 100%);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 32px 0;
+}
+
+/* Tabla ranking profesional */
+.rankingTableBg,
+.card,
+.listados,
+.cardScrollContainer {
+  background: linear-gradient(135deg, #f8fafc 0%, #e0e7ff 100%);
+  border-radius: 16px;
+  box-shadow: 0 4px 24px #0002;
+  padding: 32px 24px;
+}
+
+.rankingTableHeader th,
+.rankingTableHeaderCell,
+.tableHeader,
+thead th {
+  background: linear-gradient(90deg, #2563eb 0%, #60a5fa 100%);
+  color: #fff !important;
+  font-weight: 700;
+  border: none;
+  font-size: 14px; /* Ajustar el tamaño de fuente a 14px */
+  letter-spacing: 0.5px;
+  padding: 16px 12px;
+}
+
+.table-responsive {
+  border-radius: 12px;
+  overflow-x: auto;
+  background: transparent;
+  max-height: 480px;
+  overflow-y: auto;
+}
+
+.table {
+  margin-bottom: 0;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #f8fafc;
+  box-shadow: 0 2px 8px #0001;
+}
+
+tbody tr {
+  transition: background 0.15s;
+}
+
+tbody tr:hover {
+  background: #e0e7ff !important;
+}
+
+td {
+  vertical-align: middle !important;
+  font-size: 14px; /* Ajustar el tamaño de fuente a 14px */
+  padding: 12px 10px !important;
+  background: #fff;
+  border-bottom: 1px solid #e5e7eb !important;
+}
+
+td:first-child {
+  font-weight: normal; /* Quitar el estilo bold para los números */
+  font-size: 14px; /* Ajustar el tamaño de fuente a 14px */
+}
+
+.badge {
+  font-size: 14px !important; /* Ajustar el tamaño de fuente a 14px */
+  padding: 6px 12px !important;
+  border-radius: 8px !important;
+  background: linear-gradient(90deg, #2563eb 0%, #60a5fa 100%) !important;
+  color: #fff !important;
+  margin-right: 6px;
+}
+
+.tableHeader {
+  background: linear-gradient(90deg, #2563eb 0%, #60a5fa 100%);
+  color: #fff;
+  font-weight: bold;
+  padding: 14px;
+  text-align: center;
+  border-radius: 12px 12px 0 0;
+  font-size: 1.25rem;
+  letter-spacing: 0.5px;
+  margin-bottom: 0;
+}
