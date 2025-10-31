@@ -1,9 +1,14 @@
 import { useEffect, useState } from "react";
 import { obtenerRutas, crearRuta, actualizarRuta, eliminarRuta, obtenerZonas } from "../../services/api";
-import { Button, Table, Modal, Form, Spinner, Toast, ToastContainer } from "react-bootstrap";
+import { Button, Table, Modal, Form, Toast, ToastContainer } from "react-bootstrap";
 import { MapContainer, TileLayer, Marker, Polyline, useMapEvents, useMap } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css"; // Importar CSS de Leaflet
+import LoadingOverlay from "../../components/Common/LoadingOverlay";
+import DataTable from "react-data-table-component";
+import { FaRoute, FaEdit, FaTrashAlt, FaUsers } from "react-icons/fa";
+import rolesStyles from "../Roles/Roles.module.css";
+import usuariosStyles from "../Zonas/Usuarios.module.css";
 
 // Nuevo hook: obtiene rutas y acopios, asocia acopios a cada ruta por zona_id
 function useRutasConAcopios() {
@@ -484,7 +489,7 @@ export default function RutaPanel() {
       }
       if (form.fin_latitud !== "" && form.fin_longitud !== "") {
         payload.fin_latitud = parseFloat(form.fin_latitud);
-        payload.fin_longitud = parseFloat(form.fin.longitud);
+        payload.fin_longitud = parseFloat(form.fin_longitud);
       }
       if (form.puntos_intermedios && form.puntos_intermedios.length) {
         payload.puntos_intermedios = form.puntos_intermedios;
@@ -580,259 +585,293 @@ export default function RutaPanel() {
   }
 
   return (
-    <div style={{ position: "relative" }}>
-      {/* Loading/Error overlay */}
-      {(loadingRutas || error) && (
-        <div style={{
-          position: "absolute",
-          top: 0, left: 0, right: 0, bottom: 0,
-          background: "rgba(255,255,255,0.6)",
-          zIndex: 100,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center"
-        }}>
-          <Spinner animation="border" variant={error ? "danger" : "primary"} />
-        </div>
-      )}
+    <div className={`${rolesStyles.pageBg} container-fluid`} style={{ position: "relative" }}>
+      <div className={`w-100 px-3`}>
+        <LoadingOverlay loading={loadingRutas || loading} error={!!error} />
 
-      {/* Layout en dos columnas */}
-      <div className="row" style={{ minHeight: 400 }}>
-        {/* Columna izquierda: listado de rutas */}
-        <div className="col-md-5 col-12 mb-3">
-          <div className="mb-2 d-flex gap-2">
-            <Button variant="success" size="sm" onClick={handleAdd}>
-              Agregar ruta
-            </Button>
-          </div>
-          {error && <div className="alert alert-danger">{error}</div>}
-          <Table striped bordered hover size="sm" className="mb-0">
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Zona</th>
-                <th>Nombre</th>
-                <th>Activo</th>
-                <th>Acciones</th>
-              </tr>
-            </thead>
-            <tbody>
-              {rutas.map((r) => (
-                <tr
-                  key={r.id}
-                  style={{
-                    cursor: "pointer",
-                    background: selectedRuta && selectedRuta.id === r.id ? "#e0f7fa" : undefined
-                  }}
-                  onClick={() => setSelectedRuta(r)}
-                >
-                  <td>{r.id}</td>
-                  <td>{r.zona_nombre || ""}</td>
-                  <td>{r.nombre}</td>
-                  <td>{r.activo ? "Sí" : "No"}</td>
-                  <td>
-                    <Button size="sm" variant="outline-warning" className="me-1" onClick={e => { e.stopPropagation(); handleEdit(r); }}>
-                      Editar
-                    </Button>
-                    <Button size="sm" variant="outline-danger" onClick={e => { e.stopPropagation(); handleDelete(r.id); }}>
-                      Eliminar
-                    </Button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </Table>
-        </div>
-
-        {/* Columna derecha: mapa principal mostrando la ruta seleccionada */}
-        <div className="col-md-7 col-12">
-          <div className="mb-2">
-            <strong>
-              {selectedRuta
-                ? `Ruta: ${selectedRuta.nombre} (${selectedRuta.zona_nombre || ""})`
-                : "Seleccione una ruta para ver el mapa"}
-            </strong>
-          </div>
-          <div style={{ height: 400, width: "100%", border: "1px solid #eee", borderRadius: 8, overflow: "hidden" }}>
-            <MapContainer
-              center={
-                selectedRuta
-                  ? getRutaMapView(selectedRuta).center
-                  : RETALHULEU_CENTER
-              }
-              zoom={
-                selectedRuta
-                  ? getRutaMapView(selectedRuta).zoom
-                  : RETALHULEU_ZOOM
-              }
-              style={{ height: "100%", width: "100%" }}
-              scrollWheelZoom={true}
-            >
-              <TileLayer
-                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                attribution="&copy; OpenStreetMap contributors"
-              />
-              <RutaMapAutoCenter ruta={selectedRuta} />
-              {/* Polyline y marcadores de la ruta seleccionada */}
-              {selectedRuta && getRutaPointsChain(selectedRuta).length > 0 && (
-                <>
-                  <Polyline
-                    positions={getRutaPointsChain(selectedRuta).map(p => [p.lat, p.lng])}
-                    color="cyan"
-                  />
-                  {getRutaPointsChain(selectedRuta).map((p, idx) => (
-                    <Marker key={`sel-${idx}`} position={[p.lat, p.lng]} icon={L.icon({
-                      iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png',
-                      shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
-                      iconSize: [25,41],
-                      iconAnchor: [12,41]
-                    })} />
-                  ))}
-                  {/* Marcadores de centros de acopio asociados a la ruta */}
-                  {getAcopiosDeRuta(selectedRuta).map((a, idx) => (
-                    <Marker
-                      key={`acopio-${a.id}`}
-                      position={[parseFloat(a.latitud), parseFloat(a.longitud)]}
-                      icon={L.icon({
-                        iconUrl: 'https://cdn-icons-png.flaticon.com/512/684/684908.png', // icono diferente para acopio
-                        iconSize: [32,32],
-                        iconAnchor: [16,32]
-                      })}
-                    />
-                  ))}
-                </>
-              )}
-            </MapContainer>
+        <div className={rolesStyles.usuariosHeader}>
+          <div className="d-flex align-items-center flex-wrap gap-3">
+            <FaRoute className={rolesStyles.usuariosHeaderIcon} />
+            <div className="flex-grow-1">
+              <h1 className={rolesStyles.panelTitle}>Panel de Administración</h1>
+              <p className="mb-0 text-muted" style={{ fontSize: "var(--font-size-small)", opacity: 0.8 }}>
+                Gestión de rutas
+              </p>
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* Modal de agregar/editar ruta */}
-      <Modal show={showModal} onHide={() => setShowModal(false)} centered size="lg">
-        <Modal.Header closeButton>
-          <Modal.Title>{editMode ? "Editar ruta" : "Agregar ruta"}</Modal.Title>
-        </Modal.Header>
-        <Form onSubmit={handleSubmit}>
-          <Modal.Body>
-            <Form.Group className="mb-2">
-              <Form.Label>Nombre</Form.Label>
-              <Form.Control
-                type="text"
-                name="nombre"
-                value={form.nombre}
-                onChange={e => setForm(f => ({ ...f, nombre: e.target.value }))}
-                required
-              />
-            </Form.Group>
-
-            <Form.Group className="mb-2">
-              <Form.Label>Zona</Form.Label>
-              <Form.Select
-                name="zona_id"
-                value={form.zona_id}
-                onChange={handleZonaChange}
-                required
-              >
-                <option value="">Seleccione una zona...</option>
-                {zonas.map(z => (
-                  <option key={z.id} value={z.id}>
-                    {z.nombre}
-                  </option>
-                ))}
-              </Form.Select>
-            </Form.Group>
-
-            {/* Mapa interactivo */}
-            <div className="mb-3">
-              <small className="text-muted">Haz clic en el mapa: 1) Inicio, 2) Fin, siguientes => puntos intermedios</small>
-              <div style={{ height: 300, width: "100%", marginTop: 8 }}>
-                <MapContainer
-                  center={mapCenter}
-                  zoom={mapZoom}
-                  style={{ height: "100%", width: "100%" }}
-                  whenCreated={setMapInstance} /* guarda la instancia para invalidateSize */
-                >
-                  <TileLayer
-                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                    attribution="&copy; OpenStreetMap contributors"
-                  />
-                  <ClickMap />
-
-                  {/* ---------- RENDER CONDICIONAL PARA EVITAR CIERRE/ DUPLICADOS ---------- */}
-                  {Array.isArray(form.points_chain) && form.points_chain.length > 0 ? (
-                    <>
-                      {/* Marcadores para cada punto de la cadena en orden */}
-                      {form.points_chain.map((p, idx) => (
-                        <Marker key={`chain-${idx}`} position={[p.lat, p.lng]} icon={defaultIcon} />
-                      ))}
-
-                      {/* Polyline usando únicamente la cadena (sin concatenar inicio/fin extra) */}
-                      <Polyline
-                        positions={form.points_chain.map(p => [p.lat, p.lng])}
-                        color="cyan"
-                      />
-                    </>
-                  ) : (
-                    <>
-                      {/* Fallback: usar inicio/intermedios/fin si no hay points_chain */}
-                      {form.inicio_latitud && form.inicio_longitud && (
-                        <Marker position={[parseFloat(form.inicio_latitud), parseFloat(form.inicio_longitud)]} icon={defaultIcon} />
-                      )}
-                      {Array.isArray(form.puntos_intermedios) && form.puntos_intermedios.map((p, idx) => (
-                        <Marker key={`int-${idx}`} position={[p.lat, p.lng]} icon={defaultIcon} />
-                      ))}
-                      {form.fin_latitud && form.fin_longitud && (
-                        <Marker position={[parseFloat(form.fin_latitud), parseFloat(form.fin.longitud)]} icon={defaultIcon} />
-                      )}
-
-                      <Polyline positions={[
-                        ...(form.inicio_latitud && form.inicio_longitud ? [[parseFloat(form.inicio_latitud), parseFloat(form.inicio_longitud)]] : []),
-                        ...(Array.isArray(form.puntos_intermedios) ? form.puntos_intermedios.map(p => [p.lat, p.lng]) : []),
-                        ...(form.fin_latitud && form.fin_longitud ? [[parseFloat(form.fin_latitud), parseFloat(form.fin.longitud)]] : [])
-                      ]} color="cyan" />
-                    </>
-                  )}
-                  {/* --------------------------------------------------------------------- */}
-                </MapContainer>
-              </div>
-
-              <div className="d-flex gap-2 mt-2">
-                <Button size="sm" variant="outline-secondary" onClick={clearMapPoints}>Limpiar puntos</Button>
-                <Form.Text className="text-muted ms-auto">Puedes editar puntos manualmente en el campo "Puntos intermedios".</Form.Text>
+        {/* Layout vertical: tabla arriba, mapa abajo */}
+        <div style={{ width: "100%" }}>
+          {/* Tabla de rutas (encabezado y acciones) */}
+          <div className="mb-3">
+            <div className="d-flex justify-content-between align-items-center mb-2">
+              <div>
+                <Button size="sm" onClick={handleAdd} className={`${usuariosStyles.usuariosBtn} ${usuariosStyles.usuariosBtnEdit}`}>
+                  Agregar ruta
+                </Button>
               </div>
             </div>
 
-            <Form.Group className="mb-2">
-              <Form.Label>Puntos intermedios (lat,lng; separador ';')</Form.Label>
-              <Form.Control
-                as="textarea"
-                rows={2}
-                placeholder="12.345,-76.543; 12.346,-76.544"
-                value={form.puntos_intermedios_text}
-                onChange={e => setForm(f => ({ ...f, puntos_intermedios_text: e.target.value }))}
-              />
-              <Form.Text className="text-muted">
-                Formato simple: cada punto "lat,lng" separado por punto y coma.
-              </Form.Text>
-            </Form.Group>
+            {error && <div className="alert alert-danger">{error}</div>}
 
-            {editMode && (
-              <Form.Group className="mb-2">
-                <Form.Label>Activo</Form.Label>
-                <Form.Check
-                  type="checkbox"
-                  label="Activo"
-                  checked={form.activo}
-                  onChange={e => setForm(f => ({ ...f, activo: e.target.checked }))}
+            <div className={rolesStyles.usuariosTableBg} style={{ width: '100%', overflowX: 'auto' }}>
+              {/* DataTable styled like Zonas (wrapper allows horizontal scroll) */}
+              <DataTable
+                columns={
+                  [
+                    {
+                      name: 'Nombre',
+                      selector: row => row.nombre,
+                      sortable: true,
+                      grow: 2,
+                      cell: row => (
+                        <div className="d-flex align-items-center" style={{ padding: '8px 0' }}>
+                          <div style={{
+                            width: 20,
+                            height: 20,
+                            borderRadius: '50%',
+                            background: 'linear-gradient(135deg, var(--color-bin-green), #16a34a)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            marginRight: 12,
+                            color: 'var(--color-text-white)',
+                            fontSize: 12,
+                            fontWeight: 'bold'
+                          }}>{row.nombre?.charAt(0)?.toUpperCase() || 'R'}</div>
+                          <div>
+                            <div style={{ fontWeight: 'var(--font-weight-bold)', fontSize: 'var(--font-size-p)', color: 'var(--color-text-dark)' }}>{row.nombre}</div>
+                            <div style={{ fontSize: '12px', color: '#6c757d' }}>{row.zona_nombre || ''}</div>
+                          </div>
+                        </div>
+                      )
+                    },
+                    {
+                      name: 'ID',
+                      selector: row => row.id,
+                      sortable: true,
+                      width: '80px'
+                    },
+                    {
+                      name: 'Activo',
+                      selector: row => row.activo,
+                      sortable: true,
+                      width: '100px',
+                      cell: row => (row.activo ? <span className="badge bg-success">Sí</span> : <span className="badge bg-secondary">No</span>)
+                    },
+                    {
+                      name: 'Acciones',
+                      width: '200px',
+                      center: true,
+                      cell: row => (
+                        <div className="d-flex gap-1 justify-content-center">
+                          <Button size="sm" variant="outline-primary" className={`${usuariosStyles.usuariosBtn} ${usuariosStyles.btnEdit} me-1`} onClick={() => handleEdit(row)} title="Editar ruta">
+                            <FaEdit />
+                          </Button>
+                          <Button size="sm" variant="outline-danger" className={`${usuariosStyles.usuariosBtn} ${usuariosStyles.btnDelete}`} onClick={() => handleDelete(row.id)} title="Eliminar ruta">
+                            <FaTrashAlt />
+                          </Button>
+                        </div>
+                      )
+                    }
+                  ]
+                }
+                data={rutas}
+                noHeader
+                pagination
+                paginationPerPage={10}
+                paginationRowsPerPageOptions={[5,10,15,20,50]}
+                highlightOnHover
+                pointerOnHover
+                onRowClicked={row => setSelectedRuta(row)}
+                noDataComponent={
+                  <div className="d-flex flex-column align-items-center justify-content-center" style={{ padding: '60px 20px' }}>
+                    <div style={{ width: 80, height: 80, borderRadius: '50%', background: 'linear-gradient(135deg, rgba(27, 185, 52, 0.1), rgba(20, 100, 255, 0.1))', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 16, fontSize: 32, color: 'var(--color-text-gray)' }}>
+                      <FaUsers />
+                    </div>
+                    <h4 style={{ color: 'var(--color-text-gray)', marginBottom: 8, fontSize: 'var(--font-size-h3)' }}>No se encontraron rutas</h4>
+                    <p style={{ color: 'var(--color-text-gray)', fontSize: 'var(--font-size-small)', textAlign: 'center' }}>Crea una nueva ruta para comenzar.</p>
+                  </div>
+                }
+                customStyles={{
+                  header: { style: { backgroundColor: '#dcfce7', color: '#166534', fontWeight: 'bold', fontSize: '14px', padding: '16px', borderBottom: '2px solid #16a34a', borderRadius: 'var(--border-radius) var(--border-radius) 0 0', minHeight: '56px' } },
+                  headRow: { style: { backgroundColor: '#dcfce7', borderBottomColor: '#16a34a', borderBottomStyle: 'solid', borderBottomWidth: '2px', minHeight: '48px' } },
+                  headCells: { style: { color: '#166534', fontWeight: 'bold', textAlign: 'left', fontSize: '13px', borderRight: '1px solid #bbf7d0', padding: '12px', textTransform: 'uppercase', letterSpacing: '0.5px' } },
+                  cells: { style: { borderRight: '1px solid #f1f5f9', padding: '12px', backgroundColor: '#ffffff' } },
+                  rows: { style: { backgroundColor: '#ffffff', color: '#000000', minHeight: '56px', borderBottomColor: '#f1f5f9', borderBottomStyle: 'solid', borderBottomWidth: '1px', transition: 'all var(--transition-fast) ease' }, highlightOnHoverStyle: { backgroundColor: 'rgba(27, 185, 52, 0.05)', transition: '0.2s ease-in-out' } },
+                  pagination: { style: { backgroundColor: '#ffffff', color: '#000000', fontWeight: 'normal', borderTop: '1px solid #f1f5f9', padding: '16px' }, pageButtonsStyle: { borderRadius: '4px', height: '32px', width: '32px', padding: '4px', margin: '2px', cursor: 'pointer', color: '#000000' } },
+                  table: { style: { borderRadius: 'var(--border-radius)', overflow: 'visible', boxShadow: 'var(--box-shadow-card)', minWidth: '900px', width: '100%' } },
+                  tableWrapper: { style: { borderRadius: 'var(--border-radius)', overflow: 'visible', minWidth: '900px' } }
+                }}
+              />
+            </div>
+          </div>
+
+          {/* Mapa (debajo de la tabla, este mapa queda preparado para mostrar la ruta seleccionada)
+          <div>
+            <div className="mb-2">
+              <strong>
+                {selectedRuta
+                  ? `Ruta: ${selectedRuta.nombre} (${selectedRuta.zona_nombre || ""})`
+                  : "Seleccione una ruta para ver el mapa"}
+              </strong>
+            </div>
+            <div style={{ height: 400, width: "100%", border: "1px solid #eee", borderRadius: 8, overflow: "hidden" }}>
+              <MapContainer
+                center={selectedRuta ? getRutaMapView(selectedRuta).center : RETALHULEU_CENTER}
+                zoom={selectedRuta ? getRutaMapView(selectedRuta).zoom : RETALHULEU_ZOOM}
+                style={{ height: "100%", width: "100%" }}
+                scrollWheelZoom={true}
+              >
+                <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" attribution="&copy; OpenStreetMap contributors" />
+                <RutaMapAutoCenter ruta={selectedRuta} />
+
+                {selectedRuta && getRutaPointsChain(selectedRuta).length > 0 && (
+                  <>
+                    <Polyline positions={getRutaPointsChain(selectedRuta).map(p => [p.lat, p.lng])} color="cyan" />
+                    {getRutaPointsChain(selectedRuta).map((p, idx) => (
+                      <Marker key={`sel-${idx}`} position={[p.lat, p.lng]} icon={L.icon({
+                        iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png',
+                        shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
+                        iconSize: [25,41],
+                        iconAnchor: [12,41]
+                      })} />
+                    ))}
+                    {getAcopiosDeRuta(selectedRuta).map((a, idx) => (
+                      <Marker key={`acopio-${a.id}`} position={[parseFloat(a.latitud), parseFloat(a.longitud)]} icon={L.icon({
+                        iconUrl: 'https://cdn-icons-png.flaticon.com/512/684/684908.png',
+                        iconSize: [32,32],
+                        iconAnchor: [16,32]
+                      })} />
+                    ))}
+                  </>
+                )}
+              </MapContainer>
+            </div>
+          </div>  */}
+        </div>
+
+      {/* Modal de agregar/editar ruta */}
+      <Modal show={showModal} onHide={() => setShowModal(false)} centered size="lg">
+        <Modal.Header closeButton className={usuariosStyles.usuariosHeader}>
+          <Modal.Title className={rolesStyles.panelTitle}>{editMode ? "Editar ruta" : "Agregar ruta"}</Modal.Title>
+        </Modal.Header>
+        <Form onSubmit={handleSubmit}>
+          <Modal.Body>
+            <div className={usuariosStyles.usuariosTableBg}>
+              <Form.Group className="mb-3">
+                <Form.Label className="fw-bold">Nombre</Form.Label>
+                <Form.Control
+                  type="text"
+                  name="nombre"
+                  value={form.nombre}
+                  onChange={e => setForm(f => ({ ...f, nombre: e.target.value }))}
+                  required
+                  className="py-2"
                 />
               </Form.Group>
-            )}
+
+              <Form.Group className="mb-3">
+                <Form.Label className="fw-bold">Zona</Form.Label>
+                <Form.Select
+                  name="zona_id"
+                  value={form.zona_id}
+                  onChange={handleZonaChange}
+                  required
+                  className="py-2"
+                >
+                  <option value="">Seleccione una zona...</option>
+                  {zonas.map(z => (
+                    <option key={z.id} value={z.id}>
+                      {z.nombre}
+                    </option>
+                  ))}
+                </Form.Select>
+              </Form.Group>
+
+              <div className="mb-3">
+                <small className="text-muted">Haz clic en el mapa: 1) Inicio, 2) Fin, siguientes → puntos intermedios</small>
+                <div style={{ height: 300, width: "100%", marginTop: 8 }}>
+                  <MapContainer
+                    center={mapCenter}
+                    zoom={mapZoom}
+                    style={{ height: "100%", width: "100%" }}
+                    whenCreated={setMapInstance} /* guarda la instancia para invalidateSize */
+                  >
+                    <TileLayer
+                      url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                      attribution="&copy; OpenStreetMap contributors"
+                    />
+                    <ClickMap />
+
+                    {Array.isArray(form.points_chain) && form.points_chain.length > 0 ? (
+                      <>
+                        {form.points_chain.map((p, idx) => (
+                          <Marker key={`chain-${idx}`} position={[p.lat, p.lng]} icon={defaultIcon} />
+                        ))}
+                        <Polyline positions={form.points_chain.map(p => [p.lat, p.lng])} color="cyan" />
+                      </>
+                    ) : (
+                      <>
+                        {form.inicio_latitud && form.inicio_longitud && (
+                          <Marker position={[parseFloat(form.inicio_latitud), parseFloat(form.inicio_longitud)]} icon={defaultIcon} />
+                        )}
+                        {Array.isArray(form.puntos_intermedios) && form.puntos_intermedios.map((p, idx) => (
+                          <Marker key={`int-${idx}`} position={[p.lat, p.lng]} icon={defaultIcon} />
+                        ))}
+                        {form.fin_latitud && form.fin_longitud && (
+                          <Marker position={[parseFloat(form.fin_latitud), parseFloat(form.fin_longitud)]} icon={defaultIcon} />
+                        )}
+
+                        <Polyline positions={[
+                          ...(form.inicio_latitud && form.inicio_longitud ? [[parseFloat(form.inicio_latitud), parseFloat(form.inicio_longitud)]] : []),
+                          ...(Array.isArray(form.puntos_intermedios) ? form.puntos_intermedios.map(p => [p.lat, p.lng]) : []),
+                          ...(form.fin_latitud && form.fin_longitud ? [[parseFloat(form.fin_latitud), parseFloat(form.fin_longitud)]] : [])
+                        ]} color="cyan" />
+                      </>
+                    )}
+                  </MapContainer>
+                </div>
+
+                <div className="d-flex gap-2 mt-2">
+                  <Button size="sm" variant="outline-secondary" onClick={clearMapPoints}>Limpiar puntos</Button>
+                  <Form.Text className="text-muted ms-auto">Puedes editar puntos manualmente en el campo "Puntos intermedios".</Form.Text>
+                </div>
+              </div>
+
+              <Form.Group className="mb-3">
+                <Form.Label className="fw-bold">Puntos intermedios (lat,lng; separador ';')</Form.Label>
+                <Form.Control
+                  as="textarea"
+                  rows={2}
+                  placeholder="12.345,-76.543; 12.346,-76.544"
+                  value={form.puntos_intermedios_text}
+                  onChange={e => setForm(f => ({ ...f, puntos_intermedios_text: e.target.value }))}
+                />
+                <Form.Text className="text-muted">
+                  Formato simple: cada punto "lat,lng" separado por punto y coma.
+                </Form.Text>
+              </Form.Group>
+
+              {editMode && (
+                <Form.Group className="mb-3">
+                  <Form.Label className="fw-bold">Activo</Form.Label>
+                  <Form.Check
+                    type="checkbox"
+                    label="Activo"
+                    checked={form.activo}
+                    onChange={e => setForm(f => ({ ...f, activo: e.target.checked }))}
+                  />
+                </Form.Group>
+              )}
+            </div>
           </Modal.Body>
           <Modal.Footer>
-            <Button variant={editMode ? "warning" : "success"} type="submit">
+            <Button type="submit" className={`${usuariosStyles.usuariosBtn} ${usuariosStyles.usuariosBtnEdit}`}>
               {editMode ? "Actualizar" : "Agregar"}
             </Button>
-            <Button variant="outline-secondary" onClick={() => setShowModal(false)}>
+            <Button className={`${usuariosStyles.usuariosBtn} ms-2`} variant="outline-secondary" onClick={() => setShowModal(false)}>
               Cancelar
             </Button>
           </Modal.Footer>
@@ -854,6 +893,7 @@ export default function RutaPanel() {
           <Toast.Body className="text-white">{toastMsg}</Toast.Body>
         </Toast>
       </ToastContainer>
+      </div>
     </div>
   );
 }

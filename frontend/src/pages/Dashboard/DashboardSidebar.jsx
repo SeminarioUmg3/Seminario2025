@@ -45,8 +45,10 @@ export default function DashboardSidebar() {
     isAdmin = true;
   }
 
-  const handleNavigation = (path) => {
-    navigate(path);
+  const handleNavigation = (path, state = null) => {
+    // allow passing navigation state (used to open a specific tab in Configuracion)
+    if (state) navigate(path, { state });
+    else navigate(path);
   };
 
   // Opciones del panel (sidebar) - Orden estándar
@@ -66,8 +68,9 @@ export default function DashboardSidebar() {
   const adminOptionModule = [
     { path: "/roles", icon: <FaUser />, label: "Roles" },
     { path: "/zonas", icon: <FaMapMarkerAlt />, label: "Zonas" },
-    { path: "/rutas", icon: <FaRoute />, label: "Rutas" },
-  ]
+    // Rutas UI lives inside Configuración (tabs). Navigate to /configuracion and pass state to open the 'rutas' tab.
+    { path: "/configuracion", icon: <FaRoute />, label: "Rutas", state: { tab: "rutas" } },
+  ];
 
   const logoutOption = {
     path: "/login",
@@ -96,7 +99,7 @@ export default function DashboardSidebar() {
           {adminOptionModule.map((item, index) => (
             <Dropdown.Item 
               key={index} 
-              onClick={() => handleNavigation(item.path)}
+              onClick={() => handleNavigation(item.path, item.state)}
               style={{ textAlign: "left", padding: "10px 20px" }}
             >
               {item.icon} <span>{item.label}</span>
