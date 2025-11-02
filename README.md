@@ -15,3 +15,5 @@ dentro de la carpeta
 Backend/
 #correr el comando 
 npx generate
+# 6. Acceder a la aplicación
+Abre tu navegador web y ve a `http://localhost:3000` para ver la aplicación en funcionamiento.
