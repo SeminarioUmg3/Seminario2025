@@ -83,4 +83,8 @@ NOTA: para revisar el proyecto "asegurate de haber instalado las dependencias np
 
 ---
 
+# Recursos adicionales
+
+
 > Para dudas sobre la estructura o el flujo de trabajo, consulta el archivo `README_COMPONENTS.md` en la carpeta `frontend`.
+
