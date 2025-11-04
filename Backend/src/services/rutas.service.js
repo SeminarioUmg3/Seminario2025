@@ -24,10 +24,7 @@ export const listarRutasPorZona = async () => {
             return null;
         }).filter(Boolean);
 
-        if (zonasConRutas.length === 0) {
-            throw { status: 404, message: 'No se encontraron zonas con rutas asignadas' };
-        }
-
+       
         return zonasConRutas;
 
     } catch (error) {
