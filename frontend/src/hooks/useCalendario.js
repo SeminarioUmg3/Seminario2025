@@ -69,9 +69,37 @@ export function useCalendario() {
   const obtenerRutas = useCallback(async () => {
     try {
       // Asumiendo que existe un endpoint para obtener rutas
-      const response = await apiPublic.get('/api/rutas');
-      setRutas(response.data.data || []);
-      return response.data;
+      const response = await apiPublic.get('/api/rutas/obtenerRutas');
+      //Validar si la respuesta tiene la estructura esperada
+    const zonas = Array.isArray(response.data?.rutas) ? response.data.rutas : [];
+
+    // Si no hay rutas, simplemente limpiamos el estado
+    if (zonas.length === 0) {
+      setRutas([]);
+      console.log("⚠️ No se encontraron rutas en la API.");
+      return [];
+    }
+
+    // Aplanar la estructura: zona → rutas[]
+    const rutasPlanas = zonas.flatMap(zona =>
+      (zona.rutas || []).map(r => ({
+        id: r.id,
+        nombre: r.nombre,
+        zona_id: zona.id,
+        zona_nombre: zona.nombre,
+      }))
+    );
+
+    // Si no hay rutas dentro de las zonas, también manejarlo
+    if (rutasPlanas.length === 0) {
+      console.log("Zonas encontradas, pero sin rutas registradas.");
+    } else {
+      console.log("Rutas cargadas:", rutasPlanas);
+    }
+
+    setRutas(rutasPlanas);
+    return rutasPlanas;
+
     } catch (err) {
       console.error('Error obteniendo rutas:', err);
       // Si no hay endpoint específico, extraer rutas del calendario
@@ -91,7 +119,7 @@ export function useCalendario() {
       }
       return { data: rutas };
     }
-  }, [calendario]);
+  }, []);
 
   // Carga todos los datos y extrae filtros únicos
   const refreshCalendario = async () => {
