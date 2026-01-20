@@ -1,0 +1,299 @@
+.calendarContainer {
+  padding: 32px 0 32px 0;
+  background: var(--color-bg, #f6fff4);
+  min-height: 100vh;
+  font-size: 12px; /* Ajustar el tamaño de fuente a 12px */
+}
+.card {
+  background: var(--color-bg-light, #fff);
+  border-radius: 16px;
+  box-shadow: 0 2px 8px var(--box-shadow-card, #0001);
+  padding: 32px 28px;
+  margin-bottom: 0;
+  font-size: 12px; /* Ajustar el tamaño de fuente a 12px */
+}
+.headerRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.title {
+  font-size: 12px; /* Ajustar el tamaño de fuente a 12px */
+  font-weight: 700;
+  color: var(--color-text-dark, #213547);
+  margin-bottom: 0;
+}
+.filters {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  font-size: 12px; /* Ajustar el tamaño de fuente a 12px */
+}
+@media (max-width: 600px) {
+  .headerRow {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+  .filters {
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+  }
+  .filter {
+    width: 100%;
+    min-width: 0;
+  }
+}
+.filter {
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  background: var(--color-support-gray, #e6f4ea);
+  font-size: 12px; /* Ajustar el tamaño de fuente a 12px */
+}
+.calendarRow {
+  display: flex;
+  gap: 32px;
+  align-items: flex-start;
+  font-size: 12px; /* Ajustar el tamaño de fuente a 12px */
+}
+@media (max-width: 900px) {
+  .calendarRow {
+    flex-direction: column;
+    gap: 18px;
+    align-items: stretch;
+  }
+  .metricsBox {
+    align-items: flex-start;
+    margin-top: 18px;
+  }
+  .card {
+    padding: 18px 8px;
+    border-radius: 12px;
+  }
+}
+.calendarBox {
+  flex: 2;
+  background: none;
+}
+.yearNav {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.navBtn {
+  background: var(--color-support-gray, #e6f4ea);
+  border: none;
+  border-radius: 6px;
+  padding: 4px 10px;
+  font-size: 1.1rem;
+  cursor: pointer;
+}
+.calendarBtn {
+  background: var(--color-bin-blue, #1464ff);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 4px 10px;
+  font-size: 1.1rem;
+  cursor: pointer;
+}
+.monthLabel {
+  font-size: 1.15rem;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+.daysGrid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+  margin-bottom: 8px;
+}
+.day {
+  padding: 4px 0;
+  text-align: center;
+  color: #213547;
+  border-radius: 4px;
+  font-size: 0.98rem;
+}
+.dayActive {
+  padding: 4px 0;
+  text-align: center;
+  background: var(--color-bin-blue, #1464ff);
+  color: #fff;
+  border-radius: 4px;
+  font-size: 0.98rem;
+}
+.recoleccionInfo {
+  display: flex;
+  gap: 16px;
+  font-size: 0.98rem;
+  margin-top: 8px;
+}
+.noRecolect {
+  color: var(--color-support-red, #e53935);
+}
+.metricsBox {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  align-items: flex-end;
+}
+.metricCard {
+  background: var(--color-support-gray, #e6f4ea);
+  border-radius: 12px;
+  padding: 12px 24px;
+  text-align: center;
+  margin-bottom: 8px;
+  font-size: 12px; /* Ajustar el tamaño de fuente a 12px */
+}
+.metricValue {
+  font-size: 12px; /* Ajustar el tamaño de fuente a 12px */
+  font-weight: 700;
+  color: var(--color-bin-blue, #1464ff);
+}
+.metricLabel {
+  font-size: 12px; /* Ajustar el tamaño de fuente a 12px */
+  color: #213547;
+}
+.leyendaBox {
+  margin-top: 12px;
+}
+.leyendaTitle {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+.leyendaItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px; /* Ajustar el tamaño de fuente a 12px */
+  margin-bottom: 4px;
+}
+.binBlack {
+  width: 22px;
+  height: 22px;
+  background: var(--color-bin-black, #181818);
+  border-radius: 6px;
+  display: inline-block;
+}
+.binBlue {
+  width: 22px;
+  height: 22px;
+  background: var(--color-bin-blue, #1464ff);
+  border-radius: 6px;
+  display: inline-block;
+}
+.binGreen {
+  width: 22px;
+  height: 22px;
+  background: var(--color-bin-green, #1bb934);
+  border-radius: 6px;
+  display: inline-block;
+}
+.subtitle {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: var(--color-text-dark, #213547);
+  margin-bottom: 18px;
+}
+.rutaList {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+.rutaItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--color-support-gray, #e6f4ea);
+  border-radius: 10px;
+  padding: 10px 18px;
+}
+.rutaDot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  display: inline-block;
+}
+.dotGreen {
+  background: var(--color-bin-green, #1bb934);
+}
+.dotYellow {
+  background: var(--color-support-yellow, #ffe600);
+}
+.dotRed {
+  background: var(--color-support-red, #e53935);
+}
+.rutaName {
+  font-size: 12px; /* Ajustar el tamaño de fuente a 12px */
+  font-weight: 500;
+  color: #213547;
+}
+.rutaStatus {
+  font-size: 12px; /* Ajustar el tamaño de fuente a 12px */
+  font-weight: 600;
+  border-radius: 8px;
+  padding: 4px 14px;
+  margin-left: 8px;
+  color: #fff;
+}
+.statusGreen {
+  background: var(--color-bin-green, #1bb934);
+}
+.statusYellow {
+  background: var(--color-support-yellow, #ffe600);
+  color: #213547;
+}
+.statusRed {
+  background: var(--color-support-red, #e53935);
+}
+.rutaDetails {
+  display: flex;
+  gap: 8px;
+  margin-left: 24px;
+}
+.rutaTag {
+  background: #f3f4f6;
+  border-radius: 6px;
+  padding: 2px 10px;
+  font-size: 12px; /* Ajustar el tamaño de fuente a 12px */
+  color: #213547;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.actionBar {
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  font-size: 12px; /* Ajustar el tamaño de fuente a 12px */
+}
+.calendarWidgetWrapper {
+  margin-bottom: 12px;
+}
+.tableResponsive {
+  max-height: 350px;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  overscroll-behavior: contain;
+  font-size: 12px; /* Ajustar el tamaño de fuente a 12px */
+}
+.scrollableList {
+  max-height: 350px;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  overscroll-behavior: contain;
+  font-size: 12px; /* Ajustar el tamaño de fuente a 12px */
+}

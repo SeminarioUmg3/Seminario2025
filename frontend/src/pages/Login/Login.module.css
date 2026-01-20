@@ -1,0 +1,116 @@
+.loginLogoMuni {
+  position: absolute;
+  left: 16%; /* Alineado con el bote verde */
+  top: -20px;
+  width: 260px;
+  height: auto;
+  z-index: 1;
+  opacity: 0.92;
+  pointer-events: none;
+}
+/* Estilos para la página de login usando variables globales */
+
+.loginPage {
+    display: flex;
+    height: 100vh; /* Ocupa toda la altura de la pantalla */
+  }
+
+.loginBg {
+  flex: 1;
+  width: 50%;
+  background: linear-gradient(to bottom, #a8d5a8, #16a34a), url('/redisuos.png'); /* Fondo verde dinámico con imagen */
+  background-blend-mode: overlay;
+  background-position: center center;
+  background-size: contain;
+  background-repeat: no-repeat;
+}
+
+.loginLogoUMG {
+  position: fixed;
+  right: 32px;
+  bottom: 32px;
+  width: 180px;
+  height: auto;
+  z-index: 1;
+  opacity: 0.92;
+  pointer-events: none;
+}
+
+.loginBg::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 50%;
+  width: 50%;
+  height: 100vh; /* Ajustar altura para ocupar todo el lado derecho */
+  z-index: 0;
+  background: url('/medio.png') center center / contain no-repeat; /* Asegurar que se aprecie completamente */
+  pointer-events: none;
+}
+@media (max-width: 900px) {
+  .loginBg::before {
+    background-size: contain;
+    background-position: center bottom;
+  }
+}
+
+.loginContainer, .loginSuccess {
+  position: relative;
+  z-index: 1;
+}
+
+.loginContainer {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
+
+.loginSuccess {
+  background: var(--color-success, #16a34a);
+  color: var(--color-on-success, #fff);
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 16px;
+  text-align: center;
+  font-weight: 500;
+  font-size: 1.1rem;
+}
+
+.loginForm {
+  background: #fff;
+  padding: 32px;
+  border-radius: 16px;
+  box-shadow: 0 2px 8px #0001;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  min-width: 320px;
+}
+
+.loginTitle {
+  color: var(--color-primary, #222e3a);
+  margin-bottom: 12px;
+}
+
+.loginInput {
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid var(--color-border, #e5e7eb);
+}
+
+.loginButton {
+  background: var(--color-success, #16a34a);
+  color: var(--color-on-success, #fff);
+  border: none;
+  border-radius: 8px;
+  padding: 12px;
+  font-weight: bold;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.loginButton:hover {
+  background: var(--color-success-hover, #128a3a);
+}
